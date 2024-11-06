@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from app_books.models import AuthorModel
+from app_books.models import AuthorModel, BookModel
 from app_books.serializers import AuthorSerializer
 
 
@@ -50,3 +50,23 @@ def author_detail(request, author_id):
         return Response(response, status=status.HTTP_204_NO_CONTENT)
     else:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(['GET', 'POST'])
+def author_books(request):
+    if request.method == 'GET':
+        books = BookModel.objects.all()
+        serializer = BookSerializer(books, many=True).data
+        return Response(serializer, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        serializer = BookSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            response = {
+                'status': True,
+                'message': "Book created successfully",
+                'data': serializer.data,
+            }
+            return Response(response, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
