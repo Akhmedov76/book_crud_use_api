@@ -48,7 +48,7 @@ def author_detail(request, pk):
 
 
 @api_view(['GET', 'POST'])
-def author_books(request):
+def book_list_create(request):
     if request.method == 'GET':
         books = BookModel.objects.all()
         serializer = BookSerializer(books, many=True).data
